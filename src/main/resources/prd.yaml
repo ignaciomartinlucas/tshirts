@@ -1,0 +1,2 @@
+databaseUrl: jdbc:sqlite:c:\Users\LIM60298\AnypointStudio\studio-workspace\tshirts\src\main\resources\tshirt.db
+listenerPort: 18085
