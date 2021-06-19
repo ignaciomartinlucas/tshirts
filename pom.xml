@@ -14,11 +14,7 @@
 		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
 		<app.runtime>4.3.0-20210322</app.runtime>
 		<uri>https://anypoint.mulesoft.com</uri>
-		<target>tshirts-server</target>
 		<target.type>server</target.type>
-		<username>ignaciolucas</username>
-		<password>Soft2021</password>
-		<environment>Sandbox</environment>
 		<mule.maven.plugin.version>3.5.1</mule.maven.plugin.version>
 	</properties>
 
