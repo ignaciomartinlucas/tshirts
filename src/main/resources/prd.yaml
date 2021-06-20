@@ -1,2 +1,2 @@
 databaseUrl: jdbc:sqlite::resource:tshirt.db
-listenerPort: "18082"
+http.port: "18082"
