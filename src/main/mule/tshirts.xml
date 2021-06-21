@@ -1,16 +1,15 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<mule xmlns:api-gateway="http://www.mulesoft.org/schema/mule/api-gateway" xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:apikit="http://www.mulesoft.org/schema/mule/mule-apikit" xmlns:db="http://www.mulesoft.org/schema/mule/db" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd http://www.mulesoft.org/schema/mule/mule-apikit http://www.mulesoft.org/schema/mule/mule-apikit/current/mule-apikit.xsd  http://www.mulesoft.org/schema/mule/db http://www.mulesoft.org/schema/mule/db/current/mule-db.xsd http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd
-http://www.mulesoft.org/schema/mule/api-gateway http://www.mulesoft.org/schema/mule/api-gateway/current/mule-api-gateway.xsd">
+<mule xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:api-gateway="http://www.mulesoft.org/schema/mule/api-gateway" xmlns:apikit="http://www.mulesoft.org/schema/mule/mule-apikit" xmlns:db="http://www.mulesoft.org/schema/mule/db" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd http://www.mulesoft.org/schema/mule/mule-apikit http://www.mulesoft.org/schema/mule/mule-apikit/current/mule-apikit.xsd  http://www.mulesoft.org/schema/mule/db http://www.mulesoft.org/schema/mule/db/current/mule-db.xsd http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd http://www.mulesoft.org/schema/mule/api-gateway http://www.mulesoft.org/schema/mule/api-gateway/current/mule-api-gateway.xsd">
     <configuration-properties doc:name="Configuration properties" file="${env}.yaml" />
     <http:listener-config name="tshirts-httpListenerConfig">
         <http:listener-connection host="0.0.0.0" port="${http.port}" />
     </http:listener-config>
-    <apikit:config name="tshirts-config" api="resource::db23fae1-60ea-43d1-bbdd-66ad6468b133:tshirts:1.0.8:raml:zip:tshirts.raml" outboundHeadersMapName="outboundHeaders" httpStatusVarName="httpStatus" />
+    <apikit:config name="tshirts-config" api="resource::db23fae1-60ea-43d1-bbdd-66ad6468b133:tshirts:1.0.9:raml:zip:tshirts.raml" outboundHeadersMapName="outboundHeaders" httpStatusVarName="httpStatus" />
     <db:config name="Database_Config" doc:name="Database Config" doc:id="283b7c67-8114-4ddb-952b-042cbbcf2981">
         <db:generic-connection driverClassName="org.sqlite.JDBC" url="${databaseUrl}" />
     </db:config>
     <global-property doc:name="Global Property" doc:id="3eb2a84b-dfad-4c85-914c-1299e6fac8d7" name="env" value="dev" />
-	<api-gateway:autodiscovery apiId="16990219" ignoreBasePath="true" doc:name="API Autodiscovery" doc:id="acf16a72-eea7-4311-b2f2-6b4fd2f2b46e" flowRef="tshirts-main" />
+    <api-gateway:autodiscovery apiId="16990219" ignoreBasePath="true" doc:name="API Autodiscovery" doc:id="a6cef897-2997-4438-9b0d-a69dccfa3069" flowRef="tshirts-main" />
 	<flow name="tshirts-main">
         <http:listener config-ref="tshirts-httpListenerConfig" path="/api/1.0.0/*">
             <http:response statusCode="#[vars.httpStatus default 200]" reasonPhrase="#[vars.httpReasonPhrase default &quot;OK&quot;]">
@@ -136,17 +135,17 @@ output application/json
 where productCode=:productCode;]]></db:sql>
             <db:input-parameters><![CDATA[#[payload]]]></db:input-parameters>
         </db:update>
-		<ee:transform doc:name="Transform Message" doc:id="3fd5b6ff-a297-4341-9574-e0c0c2f24167" >
-			<ee:message >
-				<ee:set-payload ><![CDATA[%dw 2.0
+        <ee:transform doc:name="Transform Message" doc:id="3fd5b6ff-a297-4341-9574-e0c0c2f24167">
+            <ee:message>
+                <ee:set-payload><![CDATA[%dw 2.0
 output application/json
 ---
 {
 	affectedRows: vars.affectedRows
 }]]></ee:set-payload>
-			</ee:message>
-		</ee:transform>
-		<logger level="INFO" message='#["Number of affected rows: " ++ ((vars.affectedRows default -1 )as String)]' />
+            </ee:message>
+        </ee:transform>
+        <logger level="INFO" message="#[&quot;Number of affected rows: &quot; ++ ((vars.affectedRows default -1 )as String)]" />
     </flow>
     <flow name="get:\inventory:tshirts-config">
         <db:select doc:name="Select" doc:id="cc44b9e7-9c7e-4268-9ccc-4eed9fe2f829" config-ref="Database_Config">
@@ -176,16 +175,16 @@ output application/json
 (:productCode, :size, :count, :description);]]></db:sql>
                 <db:input-parameters><![CDATA[#[payload]]]></db:input-parameters>
             </db:insert>
-			<ee:transform doc:name="Transform Message" doc:id="892a71d8-c6f9-4c1b-a092-345629fadd26" >
-				<ee:message >
-					<ee:set-payload ><![CDATA[%dw 2.0
+            <ee:transform doc:name="Transform Message" doc:id="892a71d8-c6f9-4c1b-a092-345629fadd26">
+                <ee:message>
+                    <ee:set-payload><![CDATA[%dw 2.0
 output application/json
 ---
 {
 }]]></ee:set-payload>
-				</ee:message>
-			</ee:transform>
-			<error-handler>
+                </ee:message>
+            </ee:transform>
+            <error-handler>
                 <on-error-continue enableNotifications="true" logException="true" doc:name="On Error Continue" doc:id="8b9764cf-b66d-46e3-86ae-f7f761b23c6f" type="DB:QUERY_EXECUTION" when="#[error.cause.message contains 'PRIMARY KEY']">
                     <set-variable value="409" doc:name="Set Status Code" doc:id="62f39df0-f8ae-4496-a0b4-357edaf05b07" variableName="httpStatus" />
                     <set-variable value="Conflict" doc:name="Set Reason Phrase" doc:id="e48924fa-6d63-478d-bdde-8406046383d1" variableName="httpReasonPhrase" />
@@ -193,5 +192,54 @@ output application/json
                 </on-error-continue>
             </error-handler>
         </try>
+    </flow>
+    <flow name="get:\order\(orderId):tshirts-config">
+		<db:query-single doc:name="Query single" doc:id="1b05ad8a-e981-4877-bcc6-7559143290d9" config-ref="Database_Config">
+			<db:sql ><![CDATA[select * from tshirt_order where orderId =:orderId;]]></db:sql>
+			<db:input-parameters ><![CDATA[#[{'orderId': attributes.uriParams.orderId}]]]></db:input-parameters>
+		</db:query-single>
+        <ee:transform doc:name="Transform Message" doc:id="e8d3f127-0a52-4ed9-9ca0-ecea09f2e4ba" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+{
+	size: payload.size default "",
+	orderId: payload.orderId,
+	status: payload.status default ""
+}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<logger level="INFO" message="get:\order\(orderId):tshirts-config" />
+    </flow>
+    <flow name="post:\order:application\json:tshirts-config">
+        <set-variable value="#[uuid()]" doc:name="Set Variable" doc:id="5097f7b5-d963-4ab7-8531-b9437e26fb0c" variableName="orderId"/>
+		<db:insert doc:name="Insert" doc:id="29921b6e-0b72-4175-bf59-8d8f0816251d" config-ref="Database_Config">
+			<db:sql ><![CDATA[insert into tshirt_order 
+(orderId, size, email, name, address1, address2,
+stateOrProvince, postalCode, country, status) values 
+(:orderId, :size, :email,:name, :address1, :address2, :stateOrProvince, :postalCode,:country, 'INITIAL');]]></db:sql>
+			<db:input-parameters ><![CDATA[#[{orderId: vars.orderId, 
+size: payload.size,
+email: payload.email,
+name: payload.name,
+address1: payload.address1,
+address2: payload.address2,
+stateOrProvince: payload.stateOrProvince,
+postalCode: payload.postalCode,
+country : payload.country
+}]]]></db:input-parameters>
+		</db:insert>
+		<ee:transform doc:name="Transform Message" doc:id="727bf2c1-699e-4f29-ab33-b6f8d5a6cd58" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+{
+	orderId: vars.orderId as String
+}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<logger level="INFO" message="post:\order:application\json:tshirts-config" />
     </flow>
 </mule>

@@ -84,7 +84,7 @@
 		<dependency>
 			<groupId>db23fae1-60ea-43d1-bbdd-66ad6468b133</groupId>
 			<artifactId>tshirts</artifactId>
-			<version>1.0.8</version>
+			<version>1.0.9</version>
 			<classifier>raml</classifier>
 			<type>zip</type>
 		</dependency>
