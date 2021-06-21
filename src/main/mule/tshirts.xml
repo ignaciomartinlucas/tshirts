@@ -9,7 +9,7 @@
         <db:generic-connection driverClassName="org.sqlite.JDBC" url="${databaseUrl}" />
     </db:config>
     <global-property doc:name="Global Property" doc:id="3eb2a84b-dfad-4c85-914c-1299e6fac8d7" name="env" value="dev" />
-    <api-gateway:autodiscovery apiId="16990219" ignoreBasePath="true" doc:name="API Autodiscovery" doc:id="a6cef897-2997-4438-9b0d-a69dccfa3069" flowRef="tshirts-main" />
+    <api-gateway:autodiscovery apiId="16990795" ignoreBasePath="true" doc:name="API Autodiscovery" doc:id="a6cef897-2997-4438-9b0d-a69dccfa3069" flowRef="tshirts-main" />
 	<flow name="tshirts-main">
         <http:listener config-ref="tshirts-httpListenerConfig" path="/api/1.0.0/*">
             <http:response statusCode="#[vars.httpStatus default 200]" reasonPhrase="#[vars.httpReasonPhrase default &quot;OK&quot;]">
