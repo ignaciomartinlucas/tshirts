@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<mule xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:apikit="http://www.mulesoft.org/schema/mule/mule-apikit" xmlns:db="http://www.mulesoft.org/schema/mule/db" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd http://www.mulesoft.org/schema/mule/mule-apikit http://www.mulesoft.org/schema/mule/mule-apikit/current/mule-apikit.xsd  http://www.mulesoft.org/schema/mule/db http://www.mulesoft.org/schema/mule/db/current/mule-db.xsd http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+<mule xmlns:api-gateway="http://www.mulesoft.org/schema/mule/api-gateway" xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:apikit="http://www.mulesoft.org/schema/mule/mule-apikit" xmlns:db="http://www.mulesoft.org/schema/mule/db" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd http://www.mulesoft.org/schema/mule/mule-apikit http://www.mulesoft.org/schema/mule/mule-apikit/current/mule-apikit.xsd  http://www.mulesoft.org/schema/mule/db http://www.mulesoft.org/schema/mule/db/current/mule-db.xsd http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd
+http://www.mulesoft.org/schema/mule/api-gateway http://www.mulesoft.org/schema/mule/api-gateway/current/mule-api-gateway.xsd">
     <configuration-properties doc:name="Configuration properties" file="${env}.yaml" />
     <http:listener-config name="tshirts-httpListenerConfig">
         <http:listener-connection host="0.0.0.0" port="${http.port}" />
@@ -8,7 +9,9 @@
     <db:config name="Database_Config" doc:name="Database Config" doc:id="283b7c67-8114-4ddb-952b-042cbbcf2981">
         <db:generic-connection driverClassName="org.sqlite.JDBC" url="${databaseUrl}" />
     </db:config>
-    <flow name="tshirts-main">
+    <global-property doc:name="Global Property" doc:id="3eb2a84b-dfad-4c85-914c-1299e6fac8d7" name="env" value="dev" />
+	<api-gateway:autodiscovery apiId="16990219" ignoreBasePath="true" doc:name="API Autodiscovery" doc:id="acf16a72-eea7-4311-b2f2-6b4fd2f2b46e" flowRef="tshirts-main" />
+	<flow name="tshirts-main">
         <http:listener config-ref="tshirts-httpListenerConfig" path="/api/1.0.0/*">
             <http:response statusCode="#[vars.httpStatus default 200]" reasonPhrase="#[vars.httpReasonPhrase default &quot;OK&quot;]">
                 <http:headers><![CDATA[#[vars.outboundHeaders default {}]]]></http:headers>
