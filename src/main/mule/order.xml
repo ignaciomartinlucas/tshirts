@@ -9,7 +9,6 @@ http://www.mulesoft.org/schema/mule/api-gateway http://www.mulesoft.org/schema/m
         <http:listener-connection host="0.0.0.0" port="${order.http.port}" />
     </http:listener-config>
     <configuration-properties doc:name="Configuration properties" doc:id="2b587d57-2156-42c1-8571-259670129541" file="${env}.yaml" />
-    <api-gateway:autodiscovery apiId="16998517" ignoreBasePath="true" doc:name="API Autodiscovery" doc:id="96ef7f92-6742-4e8a-bddc-718147ede210" flowRef="order-main" />
 	<flow name="order-main">
         <http:listener config-ref="order_Listener_config" path="/api/1.0.0/*">
             <http:response statusCode="#[vars.httpStatus default 200]">
