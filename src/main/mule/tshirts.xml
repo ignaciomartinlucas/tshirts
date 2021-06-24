@@ -4,12 +4,12 @@
     <http:listener-config name="tshirts-httpListenerConfig">
         <http:listener-connection host="0.0.0.0" port="${http.port}" />
     </http:listener-config>
-    <apikit:config name="tshirts-config" api="resource::db23fae1-60ea-43d1-bbdd-66ad6468b133:tshirts:1.0.9:raml:zip:tshirts.raml" outboundHeadersMapName="outboundHeaders" httpStatusVarName="httpStatus" />
+    <apikit:config name="tshirts-config" api="resource::db23fae1-60ea-43d1-bbdd-66ad6468b133:tshirts:1.0.10:raml:zip:tshirts.raml" outboundHeadersMapName="outboundHeaders" httpStatusVarName="httpStatus" />
     <db:config name="Database_Config" doc:name="Database Config" doc:id="283b7c67-8114-4ddb-952b-042cbbcf2981">
         <db:generic-connection driverClassName="org.sqlite.JDBC" url="${databaseUrl}" />
     </db:config>
     <global-property doc:name="Global Property" doc:id="3eb2a84b-dfad-4c85-914c-1299e6fac8d7" name="env" value="dev" />
-    <api-gateway:autodiscovery apiId="16990795" ignoreBasePath="true" doc:name="API Autodiscovery" doc:id="a6cef897-2997-4438-9b0d-a69dccfa3069" flowRef="tshirts-main" />
+    <api-gateway:autodiscovery apiId="16998514" ignoreBasePath="true" doc:name="API Autodiscovery" doc:id="eca5581a-7f80-4220-a6da-687528fd3e87" flowRef="tshirts-main" />
 	<flow name="tshirts-main">
         <http:listener config-ref="tshirts-httpListenerConfig" path="/api/1.0.0/*">
             <http:response statusCode="#[vars.httpStatus default 200]" reasonPhrase="#[vars.httpReasonPhrase default &quot;OK&quot;]">
@@ -129,24 +129,6 @@ output application/json
             </on-error-propagate>
         </error-handler>
     </flow>
-    <flow name="put:\inventory:application\json:tshirts-config">
-        <db:update doc:name="Update" doc:id="bef9db70-6d2b-4de0-9145-f757f7c42922" config-ref="Database_Config" target="affectedRows" targetValue="#[payload.affectedRows]">
-            <db:sql><![CDATA[update inventory_item set count=:count, description=:description, size=:size 
-where productCode=:productCode;]]></db:sql>
-            <db:input-parameters><![CDATA[#[payload]]]></db:input-parameters>
-        </db:update>
-        <ee:transform doc:name="Transform Message" doc:id="3fd5b6ff-a297-4341-9574-e0c0c2f24167">
-            <ee:message>
-                <ee:set-payload><![CDATA[%dw 2.0
-output application/json
----
-{
-	affectedRows: vars.affectedRows
-}]]></ee:set-payload>
-            </ee:message>
-        </ee:transform>
-        <logger level="INFO" message="#[&quot;Number of affected rows: &quot; ++ ((vars.affectedRows default -1 )as String)]" />
-    </flow>
     <flow name="get:\inventory:tshirts-config">
         <db:select doc:name="Select" doc:id="cc44b9e7-9c7e-4268-9ccc-4eed9fe2f829" config-ref="Database_Config">
             <db:sql><![CDATA[select * from inventory_item;]]></db:sql>
@@ -193,53 +175,36 @@ output application/json
             </error-handler>
         </try>
     </flow>
-    <flow name="get:\order\(orderId):tshirts-config">
-		<db:query-single doc:name="Query single" doc:id="1b05ad8a-e981-4877-bcc6-7559143290d9" config-ref="Database_Config">
-			<db:sql ><![CDATA[select * from tshirt_order where orderId =:orderId;]]></db:sql>
-			<db:input-parameters ><![CDATA[#[{'orderId': attributes.uriParams.orderId}]]]></db:input-parameters>
-		</db:query-single>
-        <ee:transform doc:name="Transform Message" doc:id="e8d3f127-0a52-4ed9-9ca0-ecea09f2e4ba" >
-			<ee:message >
-				<ee:set-payload ><![CDATA[%dw 2.0
-output application/json
----
-{
-	size: payload.size default "",
-	orderId: payload.orderId,
-	status: payload.status default ""
-}]]></ee:set-payload>
-			</ee:message>
-		</ee:transform>
-		<logger level="INFO" message="get:\order\(orderId):tshirts-config" />
-    </flow>
-    <flow name="post:\order:application\json:tshirts-config">
-        <set-variable value="#[uuid()]" doc:name="Set Variable" doc:id="5097f7b5-d963-4ab7-8531-b9437e26fb0c" variableName="orderId"/>
-		<db:insert doc:name="Insert" doc:id="29921b6e-0b72-4175-bf59-8d8f0816251d" config-ref="Database_Config">
-			<db:sql ><![CDATA[insert into tshirt_order 
-(orderId, size, email, name, address1, address2,
-stateOrProvince, postalCode, country, status) values 
-(:orderId, :size, :email,:name, :address1, :address2, :stateOrProvince, :postalCode,:country, 'INITIAL');]]></db:sql>
-			<db:input-parameters ><![CDATA[#[{orderId: vars.orderId, 
+    <flow name="put:\inventory\(productCode):application\json:tshirts-config">
+        <db:update doc:name="Update" doc:id="317e12ee-31d3-4a24-8605-29ffa0fb437d" config-ref="Database_Config" target="affectedRows" targetValue="#[payload.affectedRows]">
+			<db:sql ><![CDATA[update inventory_item set count=:count, description=:description, size=:size 
+where productCode=:productCode;]]></db:sql>
+			<db:input-parameters ><![CDATA[#[{
+productCode: attributes.uriParams.productCode,
 size: payload.size,
-email: payload.email,
-name: payload.name,
-address1: payload.address1,
-address2: payload.address2,
-stateOrProvince: payload.stateOrProvince,
-postalCode: payload.postalCode,
-country : payload.country
+count: payload.count,
+description : payload.description
 }]]]></db:input-parameters>
-		</db:insert>
-		<ee:transform doc:name="Transform Message" doc:id="727bf2c1-699e-4f29-ab33-b6f8d5a6cd58" >
-			<ee:message >
-				<ee:set-payload ><![CDATA[%dw 2.0
-output application/json
----
-{
-	orderId: vars.orderId as String
-}]]></ee:set-payload>
-			</ee:message>
-		</ee:transform>
-		<logger level="INFO" message="post:\order:application\json:tshirts-config" />
+		</db:update>
+		<ee:transform>
+            <ee:variables>
+                <ee:set-variable variableName="productCode">attributes.uriParams.'productCode'</ee:set-variable>
+            </ee:variables>
+        </ee:transform>
+        <logger level="INFO" message="put:\inventory\(productCode):application\json:tshirts-config" />
+    </flow>
+    <flow name="delete:\inventory\(productCode):tshirts-config">
+        <db:delete doc:name="Delete" doc:id="7e5c4cfe-af60-425d-b47f-2c7d7f0571d3" config-ref="Database_Config" target="affectedRows" targetValue="#[payload.affectedRows]">
+			<db:sql ><![CDATA[delete from inventory_item where productCode=:productCode;]]></db:sql>
+			<db:input-parameters ><![CDATA[#[{
+	productCode: attributes.uriParams.productCode
+}]]]></db:input-parameters>
+		</db:delete>
+		<ee:transform>
+            <ee:variables>
+                <ee:set-variable variableName="productCode">attributes.uriParams.'productCode'</ee:set-variable>
+            </ee:variables>
+        </ee:transform>
+        <logger level="INFO" message="delete:\inventory\(productCode):tshirts-config" />
     </flow>
 </mule>

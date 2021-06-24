@@ -1,2 +1,3 @@
 databaseUrl: jdbc:sqlite::resource:tshirt.db
 http.port: "18082"
+order.http.port: "18084"
